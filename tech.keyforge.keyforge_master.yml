@@ -1,44 +1,69 @@
-app-id: "tech.keyforge.keyforge_master"
+app-id: "tech.keyforge.master"
 runtime: "org.freedesktop.Platform"
-runtime-version: "23.08"
+runtime-version: "24.08"
 sdk: "org.freedesktop.Sdk"
 sdk-extensions:
-  - "org.freedesktop.Sdk.Extension.node20"
+  - "org.freedesktop.Sdk.Extension.node22"
 base: "org.electronjs.Electron2.BaseApp"
-base-version: "23.08"
+base-version: "24.08"
 command: run.sh
 finish-args:
-  - "--device=all"
-  - "--share=ipc"
-  - "--share=network"
-  - "--socket=x11"
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --device=all
+  - --filesystem=host
+  - --filesystem=xdg-documents
+  - --socket=system-bus
+  - --system-talk-name=org.freedesktop.DBus
+  - --system-talk-name=org.freedesktop.UDisks2
+  # Tray icon
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --talk-name=com.canonical.dbusmenu 
+  - --talk-name=org.kde.StatusNotifierItem
 
 modules:
   - name: "keyforge-master"
     buildsystem: "simple"
     build-commands:
-      - mkdir /app/main/
-      - cp -a main/* /app/main
-      - install -Dm 644 tech.keyforge.keyforge_master.desktop /app/share/applications/tech.keyforge.keyforge_master.desktop
-      - install -Dm 644 tech.keyforge.keyforge_master.metainfo.xml /app/share/metainfo/tech.keyforge.keyforge_master.metainfo.xml
+      - mkdir /app/main
+      - tar -xf keyforge-master_1.1.1_linux.tar.xz -C /app/main --strip-components=1
+      - rm  keyforge-master_1.1.1_linux.tar.xz
+      - install -Dm 644 tech.keyforge.master.desktop /app/share/applications/tech.keyforge.master.desktop
+      - install -Dm 644 tech.keyforge.master.metainfo.xml /app/share/metainfo/tech.keyforge.master.metainfo.xml
       - install -Dm 755 run.sh /app/bin/run.sh
-      - install -Dm 644 icon.svg /app/share/icons/hicolor/scalable/apps/tech.keyforge.keyforge_master.svg
+      - install -Dm 644 64.png /app/share/icons/hicolor/64/apps/tech.keyforge.master.png
+      - install -Dm 644 256.png /app/share/icons/hicolor/256/apps/tech.keyforge.master.png
+      - install -Dm 644 512.png /app/share/icons/hicolor/512/apps/tech.keyforge.master.png
+      - install -Dm 644 scalable.svg /app/share/icons/hicolor/scalable/apps/tech.keyforge.master.svg
 
     sources:
-      - type: archive
-        only-arches:
-          - x86_64
-        url: https://master.keyforge.tech/flatpak-releases/keyforge-master_0.5_linux.tar.xz
-        sha256: d18fcd676ba54b182531b8bc2bfc0d5ce939ce4ae2360d2b50ad4b2150d6aa15
-        strip-components: 1
-        dest: main
       - type: file
-        path: tech.keyforge.keyforge_master.metainfo.xml
+        url: https://master.keyforge.tech/flatpak-releases/keyforge-master_1.1.1_linux.tar.xz
+        sha256: f62e9878582a31aec998df258d0a0f2e5a8c27b13ecf3ab60b54a69a0993676a
       - type: file
-        path: icon.svg
+        path: tech.keyforge.master.metainfo.xml
       - type: file
-        path: tech.keyforge.keyforge_master.desktop
+        path: icons/64.png
+      - type: file
+        path: icons/256.png
+      - type: file
+        path: icons/512.png
+      - type: file
+        path: icons/scalable.svg
+      - type: file
+        path: tech.keyforge.master.desktop
       - type: script
         dest-filename: run.sh
         commands:
-          - zypak-wrapper.sh /app/main/keyforge-master "$@"
+          - zypak-wrapper.sh /app/main/Keyforge_Master_Configurator "$@"
+
+  - name: eudev
+    buildsystem: autotools
+    config-opts:
+      - --prefix=/app
+      - --disable-manpages
+    sources:
+      - type: archive
+        url: https://github.com/eudev-project/eudev/releases/download/v3.2.14/eudev-3.2.14.tar.gz
+        sha256: 8da4319102f24abbf7fff5ce9c416af848df163b29590e666d334cc1927f006f
